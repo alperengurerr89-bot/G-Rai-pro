@@ -66,4 +66,5 @@ if prompt := st.chat_input("GÜRai'ye bir şey sor..."):
 # Yan Menü Bilgileri
 st.sidebar.title("Sistem Durumu")
 st.sidebar.success("Tünel: Aktif (Ngrok)")
+st.sidebar.info("Donanım: NVIDIA RTX 3050")
 st.sidebar.write("Alperen Gürer tarafından geliştirildi.")
