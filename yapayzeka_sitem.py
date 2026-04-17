@@ -8,7 +8,7 @@ OLLAMA_URL = "https://enchilada-dullness-decimal.ngrok-free.dev/api/generate"
 
 st.set_page_config(page_title="GÜRai Pro", page_icon="🛡️", layout="wide")
 
-# --- SES MOTORU VE TASARIM ---
+# --- SES VE TASARIM ---
 st.markdown("""
     <script>
     function speak(text) {
@@ -22,63 +22,56 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; color: white; }
     .stChatMessage { border-radius: 15px; border: 1px solid #333; background-color: #1a1c24; }
-    .stButton > button { border-radius: 20px; width: 100%; background-color: #ff4b4b; color: white; }
-    .model-info { color: #00ffcc; font-size: 12px; }
+    .stButton > button { border-radius: 20px; width: 100%; background-color: #ff4b4b; color: white; border: none; }
+    .model-card { padding: 10px; border: 1px solid #444; border-radius: 10px; background-color: #262730; margin-bottom: 20px; }
     </style>
     """, unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# --- YAN MENÜ (5 MODLU PANEL) ---
+# --- ANA EKRAN KATEGORİ SEÇİMİ ---
+st.title("🛡️ GÜRai: Yapay Zeka Merkezi")
+
+with st.container():
+    st.markdown('<div class="model-card">', unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        # Modelleri artık buradan direkt seçebilirsin
+        selected_model = st.selectbox(
+            "🧠 Zeka Kategorisi Seç:", 
+            ["llama3", "gemma", "mistral", "phi3", "codellama"],
+            index=0
+        )
+    with col2:
+        model_info = {
+            "llama3": "🛡️ **Genel Sohbet:** En akıllı ve dengeli mod.",
+            "gemma": "💡 **Mantık & Bilgi:** Google'ın derin bilgi havuzu.",
+            "mistral": "⚡ **Hızlı Cevap:** Seri ve yaratıcı konuşma.",
+            "phi3": "🚀 **Ultra Hafif:** Microsoft'un en hızlı zekası.",
+            "codellama": "💻 **Yazılım Uzmanı:** Unity ve Python kod desteği."
+        }
+        st.info(model_info[selected_model])
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# --- YAN MENÜ (SADECE SES VE TEMİZLİK) ---
 with st.sidebar:
-    st.title("🛡️ GÜRai Panel")
-    
-    # 5 Farklı Model Seçeneği
-    selected_model = st.selectbox(
-        "Zeka Modeli Seç:", 
-        ["llama3", "gemma", "mistral", "phi3", "codellama"]
-    )
-    
-    # Model Açıklamaları
-    model_desc = {
-        "llama3": "En dengeli ve akıllı genel sohbet robotu.",
-        "gemma": "Google destekli, mantık ve bilgi deposu.",
-        "mistral": "Hızlı, çevik ve yaratıcı cevaplar.",
-        "phi3": "Microsoft'un minik dev devrimcisi, en hızlısı.",
-        "codellama": "Unity, Python ve yazılım konusunda uzman."
-    }
-    st.markdown(f"<p class='model-info'>{model_desc[selected_model]}</p>", unsafe_allow_html=True)
-    
+    st.header("🎙️ Kontrol Paneli")
+    text_input = speech_to_text(language='tr', start_prompt="🎤 Sesli Sor", stop_prompt="⏹️ Gönder", just_once=True, key='speech')
     st.divider()
-    
-    st.subheader("🎙️ Sesli Sohbet")
-    text_input = speech_to_text(
-        language='tr',
-        start_prompt="🎤 Dinlemeyi Başlat",
-        stop_prompt="⏹️ Gönder",
-        just_once=True,
-        key='speech'
-    )
-    
-    st.divider()
-    if st.button("🗑️ Sohbeti Temizle"):
+    if st.button("🗑️ Sohbeti Sıfırla"):
         st.session_state.messages = []
         st.rerun()
 
-# --- ANA EKRAN ---
-st.title(f"🛡️ GÜRai: {selected_model.upper()} Modu")
-st.caption("RTX 3050 & 32GB RAM Gücüyle Yayında")
-
+# --- SOHBET AKIŞI ---
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Giriş Kontrolü
 prompt = None
 if text_input:
     prompt = text_input
-elif manual_input := st.chat_input("GÜRai'ye bir şey sor..."):
+elif manual_input := st.chat_input("GÜRai'ye mesaj gönder..."):
     prompt = manual_input
 
 if prompt:
@@ -90,25 +83,16 @@ if prompt:
         message_placeholder = st.empty()
         
         try:
-            # Karakter ve Hafıza Ayarı
-            system_context = (
-                f"Senin adın GÜRai. Alperen Gürer tarafından geliştirildin. "
-                f"Şu an {selected_model} zekasını kullanıyorsun. Sadece Türkçe konuş."
-            )
-            
+            # Sistem komutu: Her zaman Türkçe ve seçilen modele göre karakter analizi
             payload = {
                 "model": selected_model, 
-                "prompt": f"{system_context}\n\nKullanıcı: {prompt}", 
+                "prompt": f"Senin adın GÜRai. Alperen tarafından yapıldın. Sadece Türkçe konuş.\nKullanıcı: {prompt}", 
                 "stream": False,
                 "options": {"temperature": 0.5}
             }
             
-            headers = {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true"
-            }
-            
-            response = requests.post(OLLAMA_URL, json=payload, headers=headers, timeout=150)
+            headers = {"ngrok-skip-browser-warning": "true", "Content-Type": "application/json"}
+            response = requests.post(OLLAMA_URL, json=payload, headers=headers, timeout=120)
             
             if response.status_code == 200:
                 full_response = response.json().get("response", "").strip()
@@ -122,16 +106,13 @@ if prompt:
                 
                 message_placeholder.markdown(full_response)
                 
-                # Sesli Okutma (JavaScript)
-                st.components.v1.html(f"""
-                    <script>window.parent.speak("{full_response.replace('"', "'").replace('\\', '')}");</script>
-                """, height=0)
+                # Sesli okutma
+                st.components.v1.html(f"""<script>window.parent.speak("{full_response.replace('"', "'").replace('\\', '')}");</script>""", height=0)
                 
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             else:
-                st.error(f"Hata {response.status_code}: '{selected_model}' yüklü olmayabilir.")
+                st.error(f"Hata: {selected_model} aktif değil. Terminalde 'ollama pull {selected_model}' yapmalısın.")
         except:
-            st.error("Bağlantı kesildi! Terminali kontrol et.")
+            st.error("Terminal bağlantısı koptu!")
 
-st.divider()
-st.caption("Geliştirici: Alperen Gürer | Balıkesir")
+st.caption(f"Aktif Zeka: {selected_model.upper()} | Alperen Gürer")
