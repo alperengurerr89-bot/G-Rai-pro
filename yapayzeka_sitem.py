@@ -5,7 +5,7 @@ import time
 
 # --- YAPILANDIRMA ---
 # Ngrok linkin (Link değişirse burayı güncellemeyi unutma!)
-OLLAMA_URL = "https://enchilada-dullness-decimal.ngrok-free.dev/api/generate"
+OLLAMA_URL = "https://enchilada-dullness-decimal.ngrok-free.dev -> http://localhost:11434/api/generate"
 
 st.set_page_config(page_title="GÜRai Pro - Live", page_icon="🛡️", layout="wide")
 
