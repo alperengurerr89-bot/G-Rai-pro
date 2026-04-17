@@ -1,4 +1,2 @@
-streamlit
 requests
-Pillow
-pyttsx3
+streamlit-mic-recorder
