@@ -4,12 +4,11 @@ import time
 from streamlit_mic_recorder import speech_to_text
 
 # --- YAPILANDIRMA ---
-# Ngrok linkin sabit kaldı, tünel açık olduğu sürece dokunma.
 OLLAMA_URL = "https://enchilada-dullness-decimal.ngrok-free.dev/api/generate"
 
 st.set_page_config(page_title="GÜRai Pro", page_icon="🛡️", layout="wide")
 
-# --- SES VE TASARIM ---
+# --- SES MOTORU VE TASARIM ---
 st.markdown("""
     <script>
     function speak(text) {
@@ -24,30 +23,25 @@ st.markdown("""
     .main { background-color: #0e1117; color: white; }
     .stChatMessage { border-radius: 15px; border: 1px solid #333; background-color: #1a1c24; margin-bottom: 10px; }
     .stButton > button { border-radius: 20px; width: 100%; background-color: #ff4b4b; color: white; border: none; }
-    .live-status { color: #ff4b4b; font-weight: bold; animation: blinker 1.5s linear infinite; }
-    @keyframes blinker { 50% { opacity: 0; } }
     </style>
     """, unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# --- YAN MENÜ (SIDEBAR) ---
+# --- YAN MENÜ (ESKİ USUL - 5 KATEGORİ) ---
 with st.sidebar:
     st.title("🛡️ GÜRai Panel")
     
-    # İSTEDİĞİN 5 KATEGORİ BURADA
     st.subheader("🧠 Zeka Kategorileri")
     selected_model = st.selectbox(
-        "Modeli Değiştir:", 
-        ["llama3", "gemma", "mistral", "phi3", "codellama"],
-        help="Her modelin uzmanlık alanı farklıdır."
+        "Model Değiştir:", 
+        ["llama3", "gemma", "mistral", "phi3", "codellama"]
     )
     
     st.divider()
     
     st.subheader("🎙️ Live Modu")
-    # Sesli giriş butonu
     text_input = speech_to_text(
         language='tr',
         start_prompt="🎤 Sesli Sor",
@@ -60,23 +54,21 @@ with st.sidebar:
     if st.button("🗑️ Sohbeti Temizle"):
         st.session_state.messages = []
         st.rerun()
-    
-    st.caption("Geliştirici: Alperen Gürer")
 
 # --- ANA EKRAN ---
 st.title("🛡️ GÜRai Pro")
-st.caption(f"Aktif Zeka: {selected_model.upper()} | RTX 3050")
+st.caption(f"Aktif Zeka: {selected_model.upper()} | Konum: Balıkesir")
 
 # Eski Mesajları Göster
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Giriş Kontrolü (Sesli veya Yazılı)
+# Giriş İşleme
 prompt = None
 if text_input:
     prompt = text_input
-elif manual_input := st.chat_input("GÜRai'ye bir mesaj yazın..."):
+elif manual_input := st.chat_input("GÜRai'ye yazın..."):
     prompt = manual_input
 
 if prompt:
@@ -88,32 +80,17 @@ if prompt:
         message_placeholder = st.empty()
         
         try:
-            # --- DOĞRU CEVAP İÇİN KARAKTER VE HAFIZA ---
-            system_prompt = (
-                "Senin adın GÜRai. Alperen Gürer tarafından geliştirildin. "
-                "Kesinlikle TÜRKÇE konuşmalısın. Sorulara mantıklı ve doğru cevaplar ver."
-            )
+            # Karakter ve Hafıza Sistemi
+            system_prompt = f"Senin adın GÜRai. Alperen tarafından yapıldın. Sadece Türkçe konuş. Şu anki zekan: {selected_model}."
             
-            # Son 5 mesajı hafızaya alalım ki konu dağılmasın
-            memory = ""
-            for msg in st.session_state.messages[-5:]:
-                memory += f"{msg['role']}: {msg['content']}\n"
-
             payload = {
                 "model": selected_model, 
-                "prompt": f"{system_prompt}\n\nGeçmiş:\n{memory}\nAssistant:", 
+                "prompt": f"{system_prompt}\n\nKullanıcı: {prompt}", 
                 "stream": False,
-                "options": {
-                    "temperature": 0.4, # Daha az saçmalaması için düşük sıcaklık
-                    "num_ctx": 4096      # Hafıza kapasitesi
-                }
+                "options": {"temperature": 0.4} # Doğru cevaplar için 0.4 idealdir
             }
             
-            headers = {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true"
-            }
-            
+            headers = {"ngrok-skip-browser-warning": "true", "Content-Type": "application/json"}
             response = requests.post(OLLAMA_URL, json=payload, headers=headers, timeout=120)
             
             if response.status_code == 200:
@@ -128,16 +105,16 @@ if prompt:
                 
                 message_placeholder.markdown(full_response)
                 
-                # Sesli Okutma
+                # Sesli Okuma
                 st.components.v1.html(f"""
                     <script>window.parent.speak("{full_response.replace('"', "'").replace('\\', '')}");</script>
                 """, height=0)
                 
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             else:
-                st.error(f"Hata: {selected_model} hazır değil. Terminale 'ollama pull {selected_model}' yaz!")
+                st.error(f"Hata: {selected_model} henüz hazır değil (404/403).")
         except:
-            st.error("Bağlantı koptu! Terminal 1 açık mı?")
+            st.error("Bağlantı koptu!")
 
 st.divider()
-st.caption("Balıkesir / 2026")
+st.caption("Geliştirici: Alperen Gürer")
