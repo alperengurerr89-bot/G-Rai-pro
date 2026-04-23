@@ -1,29 +1,65 @@
-import subprocess
-import time
-import os
+import streamlit as st
 
-def gurai_sistemini_uyandir():
-    print("🚀 GÜRai Sistemleri Uyandırılıyor...")
-
-    # 1. ADIM: Ollama'yı özel izinle başlat
-    print("🦙 Ollama servisi başlatılıyor...")
-    # Bu satır Ollama'yı arka planda senin o yıldızlı ayarınla açar
-    env = os.environ.copy()
-    env["OLLAMA_ORIGINS"] = "*"
-    subprocess.Popen(["ollama", "serve"], env=env, creationflags=subprocess.CREATE_NEW_CONSOLE)
+# --- ÖZEL TASARIM (CSS) ---
+st.markdown("""
+    <style>
+    /* Ana Arka Plan */
+    .stApp {
+        background-color: #0e1117;
+        color: #ffffff;
+    }
     
-    time.sleep(3) # Ollama'nın kendine gelmesi için 3 saniye bekle
+    /* Yan Menü (Sidebar) */
+    [data-testid="stSidebar"] {
+        background-color: #161b22;
+        border-right: 2px solid #30363d;
+    }
 
-    # 2. ADIM: Ngrok tünelini aç
-    print("🔗 Ngrok tüneli kuruluyor...")
-    domain = "enchilada-dullness-decimal.ngrok-free.dev"
-    ngrok_command = f"ngrok http 11434 --domain={domain}"
-    subprocess.Popen(ngrok_command, shell=True, creationflags=subprocess.CREATE_NEW_CONSOLE)
+    /* Başlık Stilize Etme */
+    h1 {
+        color: #58a6ff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-shadow: 2px 2px 10px rgba(88, 166, 255, 0.3);
+        border-bottom: 2px solid #58a6ff;
+        padding-bottom: 10px;
+    }
 
-    print("\n✅ HER ŞEY HAZIR!")
-    print(f"🌍 Site Adresin: https://{domain}")
-    print("⚠️  Uyarı: Açılan siyah pencereleri kapatma, onlar GÜRai'nin motorları.")
-    print("--------------------------------------------------")
+    /* Butonları Adobe Stiline Çevir */
+    div.stButton > button:first-child {
+        background-color: #238636;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
+        font-weight: bold;
+        transition: 0.3s;
+        width: 100%;
+    }
+    
+    div.stButton > button:first-child:hover {
+        background-color: #2ea043;
+        box-shadow: 0px 0px 15px rgba(46, 160, 67, 0.5);
+        transform: scale(1.02);
+    }
 
-if __name__ == "__main__":
-    gurai_sistemini_uyandir()
+    /* Input Alanları */
+    .stTextInput > div > div > input {
+        background-color: #0d1117;
+        color: #58a6ff;
+        border: 1px solid #30363d;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- SİTE İÇERİĞİ ---
+st.title("🛡️ GÜRai Adobe Pro v1.0")
+st.sidebar.title("Kontrol Paneli")
+
+# Örnek Butonlar
+col1, col2 = st.columns(2)
+with col1:
+    st.button("🎨 Resmi AI ile Düzenle")
+with col2:
+    st.button("🎬 Videoyu Kurgula")
+
+st.text_input("Yapay Zeka'ya emir ver:", placeholder="Örn: Arka planı sil ve gökyüzünü gece yap...")
