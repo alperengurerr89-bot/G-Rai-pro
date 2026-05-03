@@ -4,9 +4,7 @@ import google.generativeai as genai
 # API Anahtarın
 genai.configure(api_key="AIzaSyCGWNPpkXbkyN5DY9NaqoNV07C6iqSYRUc")
 
-# GÜRai'nin Beyni
 model = genai.GenerativeModel('gemini-1.5-flash')
-
 st.title("🛡️ GÜRai - Yapay Zeka")
 
 soru = st.text_input("GÜRai'ye bir şey sor:")
