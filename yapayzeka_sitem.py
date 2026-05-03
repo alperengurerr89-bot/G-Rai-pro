@@ -3,7 +3,7 @@ import google.generativeai as genai
 
 # 🔑 1. ADIM: API Anahtarını Yapılandır
 # Kendi API anahtarını tırnak işaretlerinin arasına yapıştır.
-API_KEY = "AIza..." 
+API_KEY = "AIzaSyCGWNPpkXbkyN5DY9NaqoNV07C6iqSYRUc" 
 genai.configure(api_key=API_KEY)
 
 # 🧠 2. ADIM: Modeli Hazırla
