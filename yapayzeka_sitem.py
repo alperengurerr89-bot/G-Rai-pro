@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 
 # API Anahtarın
-genai.configure(api_key="AIza...")
+genai.configure(api_key="AIzaSyCGWNPpkXbkyN5DY9NaqoNV07C6iqSYRUc")
 
 # GÜRai'nin Beyni
 model = genai.GenerativeModel('gemini-1.5-flash')
