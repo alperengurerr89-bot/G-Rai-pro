@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 
 # API anahtarını buraya hatasız yapıştır
-genai.configure(api_key="AIza...") 
+genai.configure(api_key="AIzaSyCGWNPpkXbkyN5DY9NaqoNV07C6iqSYRUc") 
 
 model = genai.GenerativeModel('gemini-1.5-flash')
 
