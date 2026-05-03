@@ -4,8 +4,8 @@ import google.generativeai as genai
 # API Anahtarı
 genai.configure(api_key="AIzaSyCGWNPpkXbkyN5DY9NaqoNV07C6iqSYRUc") 
 
-# MODEL İSMİNİ BÖYLE DENE (Flash-latest her zaman çalışır)
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+# Eğer flash modelleri hata veriyorsa, en kararlı model olan pro sürümünü dene
+model = genai.GenerativeModel('gemini-pro')
 
 st.title("🛡️ GÜRai - Yapay Zeka")
 
